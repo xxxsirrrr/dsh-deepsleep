@@ -1,4 +1,6 @@
-# dsh-mobile-companion
+# dsh-deepsleep
+
+> 把 DSH 装进口袋 —— 趁你睡着，它还在电脑上干活。
 
 DSH Web GUI 的手机适配 client-plugin，外加一套带密码保护的局域网访问链路。
 纯原创、零第三方素材、MIT 协议。
