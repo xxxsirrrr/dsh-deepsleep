@@ -1,0 +1,233 @@
+/*
+ * dsh web GUI mobile companion stylesheet.
+ * Every rule is scoped under html[data-dsh-mobile] (set by the client
+ * plugin's media-query watch) so desktop rendering is untouched. Layout
+ * targets the AppFrame's hashed class substrings with data-pane
+ * attributes as progressive enhancement.
+ */
+
+/* ---------------------------------------------------------------------------
+ * Root sizing: pin the app to the dynamic viewport so mobile browser
+ * chrome (URL bar) never clips the composer.
+ * ------------------------------------------------------------------------- */
+html[data-dsh-mobile],
+html[data-dsh-mobile] body {
+  height: 100%;
+  overflow: hidden;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html[data-dsh-mobile] body {
+  position: fixed;
+  inset: 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * AppFrame: override the JS-computed inline grid tracks. The frame is the
+ * grid element that owns the sidebar column (inline
+ * grid-template-columns + [class*='_frame']). Sidebar/details leave the
+ * flow as fixed overlays below, so one 100% track is all the center needs.
+ * ------------------------------------------------------------------------- */
+html[data-dsh-mobile] :is(
+    [class*='_frame'],
+    [style*='grid-template-columns']
+  ):has(:is([data-pane='sidebar'], [class*='sidebarCol'])) {
+  grid-template-columns: 100% !important;
+  grid-template-rows: 100dvh !important;
+  height: 100dvh;
+}
+
+/* Desktop resize handles are meaningless on touch; hide them. */
+html[data-dsh-mobile] [class*='_handle'] {
+  display: none !important;
+}
+
+/* Desktop sidebar collapse toggle lives in the logo row; the drawer
+ * replaces it. Hiding avoids a rail state the drawer cannot present. */
+html[data-dsh-mobile] :is([class*='logoRow'] [class*='toggle']) {
+  display: none !important;
+}
+
+/* ---------------------------------------------------------------------------
+ * Center column: the only in-flow pane — full width, safe-area aware.
+ * ------------------------------------------------------------------------- */
+html[data-dsh-mobile] :is([data-pane='conversation'], [class*='centerCol']) {
+  width: 100%;
+  min-width: 0;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Header row: keep the toggle visible and squeeze titles instead. */
+html[data-dsh-mobile] :is([data-pane='conversation'], [class*='centerCol']) header {
+  min-width: 0;
+}
+
+html[data-dsh-mobile] header :is(h1, h2, h3, [class*='title']) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+ * Sidebar: off-canvas drawer sliding from the left. The html-level
+ * data-dsh-mobile-drawer attribute (toggled by the plugin's button)
+ * drives the open state.
+ * ------------------------------------------------------------------------- */
+html[data-dsh-mobile] :is([data-pane='sidebar'], [class*='sidebarCol']) {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: min(86vw, 340px);
+  min-width: 0;
+  z-index: 70;
+  transform: translateX(-102%);
+  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: none;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  visibility: hidden;
+}
+
+html[data-dsh-mobile][data-dsh-mobile-drawer] :is(
+    [data-pane='sidebar'],
+    [class*='sidebarCol']
+  ) {
+  transform: none;
+  box-shadow: 0 0 44px 10px rgb(0 0 0 / 0.35);
+  visibility: visible;
+}
+
+/* Backdrop: mounted by the plugin, gated to the open state. */
+[data-dsh-mobile-backdrop] {
+  display: none;
+}
+
+html[data-dsh-mobile][data-dsh-mobile-drawer] [data-dsh-mobile-backdrop] {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 65;
+  background: rgb(0 0 0 / 0.45);
+}
+
+/* Drawer toggle: hidden on desktop, 44px touch target on mobile. */
+[data-dsh-mobile-toggle] {
+  display: none;
+}
+
+html[data-dsh-mobile] [data-dsh-mobile-toggle] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  margin-right: 2px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html[data-dsh-mobile] [data-dsh-mobile-toggle]:active {
+  background: rgb(127 127 127 / 0.18);
+}
+
+/* ---------------------------------------------------------------------------
+ * Details pane: off-canvas overlay from the right. Visibility keys off the
+ * frame's own [data-details-collapsed] attribute, so the product's native
+ * open/close controls keep working unmodified.
+ * ------------------------------------------------------------------------- */
+html[data-dsh-mobile] :is([data-pane='details'], [class*='detailsCol']) {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: auto;
+  width: min(92vw, 420px);
+  min-width: 0;
+  z-index: 70;
+  background: var(--dsw-alias-bg-base, var(--dsw-specific-sidebar-fill, #fff));
+  transform: translateX(102%);
+  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: none;
+  visibility: hidden;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+html[data-dsh-mobile] :is(
+    [class*='_frame'],
+    [style*='grid-template-columns']
+  ):not([data-details-collapsed]) :is([data-pane='details'], [class*='detailsCol']) {
+  transform: none;
+  box-shadow: 0 0 44px 10px rgb(0 0 0 / 0.35);
+  visibility: visible;
+}
+
+/* ---------------------------------------------------------------------------
+ * Composer: safe-area bottom inset and iOS zoom-proof input sizing
+ * (focus zoom is suppressed at >= 16px).
+ * ------------------------------------------------------------------------- */
+html[data-dsh-mobile] [data-composer-card] {
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+}
+
+html[data-dsh-mobile] :is(input, textarea, select) {
+  font-size: max(16px, 1em);
+}
+
+/* ---------------------------------------------------------------------------
+ * Content fit: code blocks, tables, and media must scroll inside their
+ * cards instead of stretching the conversation column.
+ * ------------------------------------------------------------------------- */
+html[data-dsh-mobile] pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+html[data-dsh-mobile] table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+html[data-dsh-mobile] :is(img, video) {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ---------------------------------------------------------------------------
+ * Dialogs and masks: fit the phone, scroll inside.
+ * ------------------------------------------------------------------------- */
+html[data-dsh-mobile] [role='dialog'] {
+  max-width: min(92vw, 520px);
+  max-height: min(84dvh, 760px);
+  margin: auto;
+}
+
+html[data-dsh-mobile] [class*='mask'] {
+  padding: 12px;
+}
+
+/* ---------------------------------------------------------------------------
+ * Touch polish.
+ * ------------------------------------------------------------------------- */
+html[data-dsh-mobile] * {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-dsh-mobile] :is([data-pane='sidebar'], [class*='sidebarCol']),
+  html[data-dsh-mobile] :is([data-pane='details'], [class*='detailsCol']) {
+    transition: none;
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "@dsh-external/dsh-client-ui-mobile-companion",
+  "description": "Mobile companion layout for the dsh web GUI: phone-width drawer sidebar, overlay details pane, touch-sized composer and safe-area handling",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [],
+      "platform": "web"
+    }
+  },
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "license": "MIT"
+}

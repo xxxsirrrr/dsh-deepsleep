@@ -1,0 +1,5 @@
+# mobile-companion bundle patch: inserts its public dsh.client entry into the
+# web plugin roster. Browser-only plugin — the host half is a no-op.
+- insert:
+    - id: ui-mobile-companion
+      name: '@dsh-external/dsh-client-ui-mobile-companion'

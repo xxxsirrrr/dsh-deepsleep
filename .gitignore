@@ -1,0 +1,10 @@
+# Local secrets / state — never commit
+proxy-password.txt
+proxy-port.txt
+
+# Private session backups and other machine data
+*.jsonl.zstd
+
+# Dependencies and throwaway test scaffolding
+node_modules/
+_synctest/
